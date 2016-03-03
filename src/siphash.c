@@ -107,10 +107,10 @@ int
 crypto_shorthash_siphash24(unsigned char *out, const unsigned char *in,
                            unsigned long long inlen, const unsigned char *k)
 {
-    SipHashState        state;
-    __m128i             packet;
-    unsigned long long  offset;
-    uint64_t            h;
+    CRYPTO_ALIGN(16) SipHashState state;
+    __m128i                       packet;
+    unsigned long long            offset;
+    uint64_t                      h;
 
     init(&state, k);
     for (offset = 0; offset < (inlen & ~(unsigned long long) 7); offset += 8) {
