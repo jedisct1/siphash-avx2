@@ -73,10 +73,10 @@ load_final_packet_64(const uint8_t *in, unsigned long long size,
 static inline void
 init(SipHashState *state, const uint8_t *k)
 {
-    const __m128i key = _mm_loadu_si128((const __m128i *) (const void *) k);
-    const __m128i init0 =
+    __m128i key = _mm_loadu_si128((const __m128i *) (const void *) k);
+    __m128i init0 =
         key ^ _mm_set_epi64x(0x646f72616e646f6dULL, 0x736f6d6570736575ULL);
-    const __m128i init1 =
+    __m128i init1 =
         key ^ _mm_set_epi64x(0x7465646279746573ULL, 0x6c7967656e657261ULL);
 
     state->v20 = _mm_unpacklo_epi64(init0, init1);
