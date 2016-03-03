@@ -45,7 +45,8 @@ load_packet_64(const uint8_t *in)
 }
 
 static inline __m128i
-load_final_packet_64(const uint8_t *in, const uint64_t size, const unsigned long long offset)
+load_final_packet_64(const uint8_t *in, unsigned long long size,
+                     unsigned long long offset)
 {
     CRYPTO_ALIGN(16) uint8_t padded[8] = {0};
     uint8_t *                padded_ptr = padded;
