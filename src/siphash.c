@@ -47,12 +47,12 @@ load_packet_64(const uint8_t *in)
 static inline __m128i
 load_final_packet_64(const uint8_t* in, const uint64_t size, const unsigned long long offset)
 {
-    CRYPTO_ALIGN(16) uint8_t buffer[8] = {0};
+    CRYPTO_ALIGN(16) uint8_t padded[8] = {0};
 
-    memcpy(buffer, in, size - offset);
-    buffer[7] = size;
+    memcpy(padded, in, size - offset);
+    padded[7] = size;
 
-    return load_packet_64(buffer);
+    return load_packet_64(padded);
 }
 
 static inline void
@@ -69,7 +69,7 @@ init(SipHashState *state, const uint8_t *k)
 }
 
 static inline void
-compress(SipHashState *state, const int rounds)
+compress(SipHashState *state, int rounds)
 {
     int i;
 
