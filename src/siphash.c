@@ -64,7 +64,7 @@ load_final_packet_64(const uint8_t *in, const uint64_t size, const unsigned long
     if (fs & 1) {
         *padded_ptr = *in;
     }
-    padded[7] = size;
+    padded[7] = (uint8_t) size;
 
     return load_packet_64(padded);
 }
