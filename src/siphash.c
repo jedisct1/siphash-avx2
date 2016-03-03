@@ -36,8 +36,10 @@ static inline __m128i
 load_final_packet_64(const uint8_t* in, const uint64_t size, const unsigned long long offset)
 {
     CRYPTO_ALIGN(16) uint8_t buffer[8] = {0};
+
     memcpy(buffer, in, size - offset);
     buffer[7] = size;
+    
     return load_packet_64(buffer);
 }
 
@@ -116,9 +118,9 @@ int
 crypto_shorthash_siphash24(unsigned char *out, const unsigned char *in,
                            unsigned long long inlen, const unsigned char *k)
 {
-    SipHashState       state;
-    __m128i            packet;
-    unsigned long long offset;
+    SipHashState        state;
+    __m128i             packet;
+    unsigned long long  offset;
     uint64_t            h;
 
     init(&state, k);
