@@ -17,6 +17,18 @@
 # endif
 #endif
 
+#define ROTATE_LEFT(V31, BITS3, BITS1) \
+    _mm_sllv_epi64(V31, _mm_set_epi64x(BITS3, BITS1)) | \
+    _mm_srlv_epi64(V31, _mm_set_epi64x(64 - BITS3, 64 - BITS1))
+
+#define ROTATE_LEFT_32(V20) \
+    _mm_shuffle_epi32(V20, _MM_SHUFFLE(0, 1, 3, 2))
+
+#define HALF_ROUND(V20, V31, BITS3, BITS1) \
+    V20 += V31; \
+    V31 = ROTATE_LEFT(V31, BITS3, BITS1); \
+    V31 ^= V20;
+
 typedef struct SipHashState {
     __m128i v20;
     __m128i v31;
@@ -39,7 +51,7 @@ load_final_packet_64(const uint8_t* in, const uint64_t size, const unsigned long
 
     memcpy(buffer, in, size - offset);
     buffer[7] = size;
-    
+
     return load_packet_64(buffer);
 }
 
@@ -56,39 +68,16 @@ init(SipHashState *state, const uint8_t *k)
     state->v31 = _mm_unpackhi_epi64(init0, init1);
 }
 
-static inline __m128i
-rotate_left(__m128i v31, uint64_t bits3, uint64_t bits1)
-{
-    const __m128i left = _mm_sllv_epi64(v31, _mm_set_epi64x(bits3, bits1));
-    const __m128i right = _mm_srlv_epi64(v31, _mm_set_epi64x(64 - bits3, 64 - bits1));
-
-    return left | right;
-}
-
-static inline __m128i
-rotate_left_32(__m128i v20)
-{
-    return _mm_shuffle_epi32(v20, _MM_SHUFFLE(0, 1, 3, 2));
-}
-
-static inline void
-half_round(SipHashState *state, const uint64_t bits3, const uint64_t bits1)
-{
-    state->v20 += state->v31;
-    state->v31 = rotate_left(state->v31, bits3, bits1);
-    state->v31 ^= state->v20;
-}
-
 static inline void
 compress(SipHashState *state, const int rounds)
 {
     int i;
 
     for (i = 0; i < rounds; i++) {
-        half_round(state, 16, 13);
-        state->v20 = rotate_left_32(state->v20);
-        half_round(state, 21, 17);
-        state->v20 = rotate_left_32(state->v20);
+        HALF_ROUND(state->v20, state->v31, 16, 13);
+        state->v20 = ROTATE_LEFT_32(state->v20);
+        HALF_ROUND(state->v20, state->v31, 21, 17);
+        state->v20 = ROTATE_LEFT_32(state->v20);
     }
 }
 
