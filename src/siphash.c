@@ -96,7 +96,7 @@ compress(SipHashState *state, int rounds)
 }
 
 static inline void
-update(SipHashState *state, const __m128i packet)
+update(SipHashState *state, __m128i packet)
 {
     state->v31 ^= _mm_slli_si128(packet, 8);
     compress(state, 2);
